@@ -47,7 +47,7 @@ function parseCsv(content: string): CsvRow[] {
       row[header] = values[index] || '';
     });
     
-    rows.push(row as CsvRow);
+    rows.push(row as unknown as CsvRow);
   }
   
   return rows;
