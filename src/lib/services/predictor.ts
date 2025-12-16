@@ -204,7 +204,7 @@ async function getNewsSignals(): Promise<PredictionSignal[]> {
   let count = 0;
   
   for (const quant of recentNews) {
-    const impact = quant.humanScore ?? quant.algorithmScore ?? 0;
+    const impact = quant.humanScore ?? quant.impactScore ?? 0;
     totalImpact += impact;
     count++;
   }
