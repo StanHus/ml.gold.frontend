@@ -28,7 +28,15 @@ interface TrainingResult {
 }
 
 // Feature extraction from price data
-function extractFeatures(prices: any[], index: number, windowSize: number): number[] {
+interface PriceRecord {
+  closePrice: number;
+  sma50?: number | null;
+  sma200?: number | null;
+  volatility7d?: number | null;
+  dailyChangePct?: number | null;
+}
+
+function extractFeatures(prices: PriceRecord[], index: number, windowSize: number): number[] {
   if (index < windowSize) return [];
   
   const window = prices.slice(index - windowSize, index);
@@ -80,7 +88,7 @@ function extractFeatures(prices: any[], index: number, windowSize: number): numb
 }
 
 // Detect patterns in price data
-function detectPatterns(prices: any[], index: number, windowSize: number): string[] {
+function detectPatterns(prices: PriceRecord[], index: number, windowSize: number): string[] {
   if (index < windowSize) return [];
   
   const window = prices.slice(index - windowSize, index + 1);

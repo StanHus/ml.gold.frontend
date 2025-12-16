@@ -63,7 +63,13 @@ function calculateMACD(prices: number[]): { macd: number; signal: number; histog
   return { macd, signal, histogram: macd - signal };
 }
 
-function detectTechnicalPatterns(prices: any[]): PredictionSignal[] {
+interface PriceRecord {
+  closePrice: number;
+  sma50?: number | null;
+  sma200?: number | null;
+}
+
+function detectTechnicalPatterns(prices: PriceRecord[]): PredictionSignal[] {
   const signals: PredictionSignal[] = [];
   const closePrices = prices.map(p => p.closePrice);
   
@@ -241,7 +247,7 @@ async function getEconomicSignals(): Promise<PredictionSignal[]> {
   });
   
   // Analyze each indicator
-  indicatorMap.forEach((values, name) => {
+  indicatorMap.forEach((values: { value: number }[], name: string) => {
     if (values.length < 2) return;
     
     const latest = values[0].value;

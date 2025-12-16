@@ -107,8 +107,8 @@ export default function GoldAI() {
       const res = await fetch("/api/gold?action=latest");
       const data = await res.json();
       if (data.success) setLatestPrice(data.data);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -117,8 +117,8 @@ export default function GoldAI() {
       const res = await fetch("/api/predict");
       const data = await res.json();
       if (data.success) setPrediction(data.prediction);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -127,8 +127,8 @@ export default function GoldAI() {
       const res = await fetch(`/api/gold?action=swings&minSwing=${swingThreshold}`);
       const data = await res.json();
       if (data.success) setSwings(data.data?.slice(0, 30) || []);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // ignore
     }
   }, [swingThreshold]);
 
@@ -153,7 +153,7 @@ export default function GoldAI() {
       } else {
         setStatus("No data found for this date");
       }
-    } catch (e) {
+    } catch {
       setStatus("Error searching");
     }
   };
@@ -173,7 +173,7 @@ export default function GoldAI() {
       } else {
         setStatus("Failed to fetch live price");
       }
-    } catch (e) {
+    } catch {
       setStatus("Error fetching live price");
     }
   };
@@ -192,7 +192,7 @@ export default function GoldAI() {
         setTrainingResult(data.finalMetrics);
         setStatus(`Training complete! Accuracy: ${(data.finalMetrics.accuracy * 100).toFixed(1)}%`);
       }
-    } catch (e) {
+    } catch {
       setStatus("Training failed");
     }
     setIsTraining(false);
@@ -236,7 +236,7 @@ export default function GoldAI() {
       } else {
         setStatus(`Analysis failed: ${data.error}`);
       }
-    } catch (e) {
+    } catch {
       setStatus("Analysis failed");
     }
     setIsAnalyzing(false);
@@ -261,8 +261,8 @@ export default function GoldAI() {
           ),
         });
       }
-    } catch (e) {
-      console.error("Failed to submit rating:", e);
+    } catch {
+      console.error("Failed to submit rating");
     }
   };
 
