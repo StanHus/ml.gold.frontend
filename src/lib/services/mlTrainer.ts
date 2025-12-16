@@ -110,10 +110,10 @@ function detectPatterns(prices: PriceRecord[], index: number, windowSize: number
   }
   
   // High volatility spike
-  if (prices[index].volatility7d && prices[index - 7]?.volatility7d) {
-    if (prices[index].volatility7d > prices[index - 7].volatility7d * 1.5) {
-      patterns.push('high_volatility_spike');
-    }
+  const currentVol = prices[index].volatility7d;
+  const prevVol = prices[index - 7]?.volatility7d;
+  if (currentVol && prevVol && currentVol > prevVol * 1.5) {
+    patterns.push('high_volatility_spike');
   }
   
   // Breakout detection
