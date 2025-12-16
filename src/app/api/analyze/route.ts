@@ -382,7 +382,7 @@ export async function GET(request: NextRequest) {
       take: limit,
     });
 
-    const results = quantifications.map((q) => ({
+    const results = quantifications.map((q: typeof quantifications[number]) => ({
       id: q.id,
       articleId: q.newsArticleId,
       title: q.newsArticle.title,
