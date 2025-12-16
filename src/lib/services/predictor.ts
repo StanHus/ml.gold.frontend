@@ -238,7 +238,7 @@ async function getEconomicSignals(): Promise<PredictionSignal[]> {
   });
   
   // Group by indicator type
-  const indicatorMap = new Map<string, any[]>();
+  const indicatorMap = new Map<string, { value: number }[]>();
   indicators.forEach(ind => {
     if (!indicatorMap.has(ind.indicator)) {
       indicatorMap.set(ind.indicator, []);
