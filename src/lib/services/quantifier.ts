@@ -130,8 +130,8 @@ export class QuantifierService {
     }
     
     if (priceData.dailyChangePct !== null) {
-      const priceDirection = priceData.dailyChangePct > 0 ? 1 : -1;
-      const sentimentDirection = analysis.sentiment === 'bullish' ? 1 : analysis.sentiment === 'bearish' ? -1 : 0;
+      const priceDirection: number = priceData.dailyChangePct > 0 ? 1 : -1;
+      const sentimentDirection: number = analysis.sentiment === 'bullish' ? 1 : analysis.sentiment === 'bearish' ? -1 : 0;
       
       if (priceDirection === sentimentDirection && sentimentDirection !== 0) {
         impactScore *= (1 + Math.abs(priceData.dailyChangePct) / 100);
