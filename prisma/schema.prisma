@@ -1,0 +1,188 @@
+// Gold AI Price Analysis System
+// Database schema for tracking prices, news, patterns, and human feedback
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Historical and live gold prices
+model GoldPrice {
+  id              String   @id @default(cuid())
+  date            DateTime @unique
+  closePrice      Float
+  openPrice       Float?
+  highPrice       Float?
+  lowPrice        Float?
+  volume          Float?
+  
+  // Calculated fields (populated by the Brain)
+  dailyChange     Float?   // Absolute change from previous day
+  dailyChangePct  Float?   // Percentage change from previous day
+  volatility7d    Float?   // 7-day rolling volatility
+  volatility30d   Float?   // 30-day rolling volatility
+  sma20           Float?   // 20-day simple moving average
+  sma50           Float?   // 50-day simple moving average
+  sma200          Float?   // 200-day simple moving average
+  
+  source          String   @default("csv") // csv, metal_api, manual
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  newsQuantifications NewsQuantification[]
+  patternOccurrences  PatternOccurrence[]
+  
+  @@index([date])
+  @@index([dailyChangePct])
+}
+
+// News articles fetched from World News API
+model NewsArticle {
+  id              String   @id @default(cuid())
+  externalId      String?  @unique // ID from the news API
+  title           String
+  text            String
+  summary         String?
+  url             String?
+  source          String?
+  author          String?
+  publishedAt     DateTime
+  category        String?  // gold, economy, geopolitics, etc.
+  sentiment       Float?   // -1 to 1, from NLP analysis
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  quantifications NewsQuantification[]
+  
+  @@index([publishedAt])
+  @@index([category])
+}
+
+// Quantified impact of news on gold price
+model NewsQuantification {
+  id              String   @id @default(cuid())
+  
+  newsArticleId   String
+  newsArticle     NewsArticle @relation(fields: [newsArticleId], references: [id])
+  
+  goldPriceId     String
+  goldPrice       GoldPrice @relation(fields: [goldPriceId], references: [id])
+  
+  // Algorithm's assessment
+  impactScore     Float    // -100 to +100 (negative = bearish, positive = bullish)
+  confidenceScore Float    // 0 to 1
+  lagDays         Int      @default(0) // How many days after news did impact occur
+  
+  // Context categorization
+  impactCategory  String?  // inflation, geopolitics, currency, demand, supply, etc.
+  reasoning       String?  // Algorithm's explanation
+  
+  // Human feedback fields
+  humanVerified   Boolean  @default(false)
+  humanScore      Float?   // Human's corrected score (-100 to +100)
+  humanFeedback   String?  // Human's notes/corrections
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([newsArticleId, goldPriceId])
+  @@index([impactScore])
+  @@index([humanVerified])
+}
+
+// Detected price patterns (technical analysis)
+model Pattern {
+  id              String   @id @default(cuid())
+  name            String   @unique // e.g., "double_top", "head_shoulders", "breakout"
+  description     String?
+  typicalDuration Int?     // Typical duration in days
+  typicalImpact   Float?   // Average price impact percentage
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  occurrences     PatternOccurrence[]
+}
+
+// Specific occurrences of patterns in the price data
+model PatternOccurrence {
+  id              String   @id @default(cuid())
+  
+  patternId       String
+  pattern         Pattern  @relation(fields: [patternId], references: [id])
+  
+  startPriceId    String
+  startPrice      GoldPrice @relation(fields: [startPriceId], references: [id])
+  
+  startDate       DateTime
+  endDate         DateTime?
+  
+  // Pattern metrics
+  confidence      Float    // 0 to 1
+  predictedMove   Float?   // Predicted price movement percentage
+  actualMove      Float?   // Actual movement (filled after pattern completes)
+  
+  // Human feedback
+  humanVerified   Boolean  @default(false)
+  humanConfirmed  Boolean? // Did human confirm this was a valid pattern?
+  humanNotes      String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([startDate])
+  @@index([patternId])
+}
+
+// Economic indicators from FRED API
+model EconomicIndicator {
+  id              String   @id @default(cuid())
+  seriesId        String   // FRED series ID (e.g., "FEDFUNDS", "CPIAUCSL")
+  name            String
+  date            DateTime
+  value           Float
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([seriesId, date])
+  @@index([seriesId])
+  @@index([date])
+}
+
+// Query logs for analysis
+model QueryLog {
+  id              String   @id @default(cuid())
+  queryType       String   // date_lookup, volatility_search, pattern_search, etc.
+  parameters      String   // JSON string of query parameters
+  resultsCount    Int
+  executionTimeMs Int
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([queryType])
+  @@index([createdAt])
+}
+
+// Training/learning iterations
+model TrainingRun {
+  id              String   @id @default(cuid())
+  runType         String   // pattern_detection, news_quantification, etc.
+  parameters      String   // JSON config
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  status          String   @default("running") // running, completed, failed
+  metrics         String?  // JSON with accuracy, loss, etc.
+  notes           String?
+  
+  @@index([runType])
+  @@index([status])
+}
