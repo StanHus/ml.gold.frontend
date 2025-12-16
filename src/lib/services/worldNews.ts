@@ -38,22 +38,21 @@ const IMPACT_CATEGORIES = {
 };
 
 export class WorldNewsService {
-  private apiKey: string;
   private baseUrl = 'https://api.worldnewsapi.com';
 
-  constructor() {
+  private getApiKey(): string {
     const apiKey = process.env.WORLD_NEWS_API_KEY;
     if (!apiKey) {
       throw new Error('WORLD_NEWS_API_KEY environment variable is not set');
     }
-    this.apiKey = apiKey;
+    return apiKey;
   }
 
   async searchGoldNews(options: { startDate?: Date; endDate?: Date; limit?: number } = {}): Promise<WorldNewsArticle[]> {
     const { startDate = subDays(new Date(), 7), endDate = new Date(), limit = 100 } = options;
     
     const params = new URLSearchParams({
-      'api-key': this.apiKey,
+      'api-key': this.getApiKey(),
       'text': 'gold OR bullion OR "precious metals" OR XAU',
       'earliest-publish-date': format(startDate, 'yyyy-MM-dd'),
       'latest-publish-date': format(endDate, 'yyyy-MM-dd'),
@@ -73,7 +72,7 @@ export class WorldNewsService {
     const { startDate = subDays(new Date(), 7), endDate = new Date(), limit = 50 } = options;
     
     const params = new URLSearchParams({
-      'api-key': this.apiKey,
+      'api-key': this.getApiKey(),
       'text': topic,
       'earliest-publish-date': format(startDate, 'yyyy-MM-dd'),
       'latest-publish-date': format(endDate, 'yyyy-MM-dd'),

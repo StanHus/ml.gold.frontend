@@ -37,21 +37,19 @@ interface TimeSeriesResponse {
 }
 
 export class MetalApiService {
-  private apiKey: string;
-
-  constructor() {
+  private getApiKey(): string {
     const apiKey = process.env.METAL_API_KEY;
     if (!apiKey) {
       throw new Error('METAL_API_KEY environment variable is not set');
     }
-    this.apiKey = apiKey;
+    return apiKey;
   }
 
   /**
    * Fetch current live gold price
    */
   async getLivePrice(): Promise<{ price: number; timestamp: Date }> {
-    const url = `${METAL_API_BASE}/latest?api_key=${this.apiKey}&base=USD&currencies=XAU`;
+    const url = `${METAL_API_BASE}/latest?api_key=${this.getApiKey()}&base=USD&currencies=XAU`;
     
     const response = await fetch(url);
     const data: MetalPriceResponse = await response.json();
@@ -74,7 +72,7 @@ export class MetalApiService {
    */
   async getHistoricalPrice(date: Date): Promise<{ price: number; date: Date }> {
     const dateStr = date.toISOString().split('T')[0];
-    const url = `${METAL_API_BASE}/${dateStr}?api_key=${this.apiKey}&base=USD&currencies=XAU`;
+    const url = `${METAL_API_BASE}/${dateStr}?api_key=${this.getApiKey()}&base=USD&currencies=XAU`;
     
     const response = await fetch(url);
     const data: MetalHistoricalResponse = await response.json();
@@ -97,7 +95,7 @@ export class MetalApiService {
   async getTimeSeries(startDate: Date, endDate: Date): Promise<Array<{ date: Date; price: number }>> {
     const startStr = startDate.toISOString().split('T')[0];
     const endStr = endDate.toISOString().split('T')[0];
-    const url = `${METAL_API_BASE}/timeframe?api_key=${this.apiKey}&start_date=${startStr}&end_date=${endStr}&base=USD&currencies=XAU`;
+    const url = `${METAL_API_BASE}/timeframe?api_key=${this.getApiKey()}&start_date=${startStr}&end_date=${endStr}&base=USD&currencies=XAU`;
     
     const response = await fetch(url);
     const data: TimeSeriesResponse = await response.json();

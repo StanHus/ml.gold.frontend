@@ -53,15 +53,14 @@ export const GOLD_RELEVANT_SERIES = {
 } as const;
 
 export class FredApiService {
-  private apiKey: string;
   private baseUrl = 'https://api.stlouisfed.org/fred';
 
-  constructor() {
+  private getApiKey(): string {
     const apiKey = process.env.FRED_API_KEY;
     if (!apiKey) {
       throw new Error('FRED_API_KEY environment variable is not set');
     }
-    this.apiKey = apiKey;
+    return apiKey;
   }
 
   async getSeriesObservations(seriesId: string, options: { startDate?: Date; endDate?: Date; limit?: number } = {}): Promise<FredObservation[]> {
@@ -69,7 +68,7 @@ export class FredApiService {
     
     const params = new URLSearchParams({
       series_id: seriesId,
-      api_key: this.apiKey,
+      api_key: this.getApiKey(),
       file_type: 'json',
       observation_start: format(startDate, 'yyyy-MM-dd'),
       observation_end: format(endDate, 'yyyy-MM-dd'),
