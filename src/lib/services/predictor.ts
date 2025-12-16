@@ -240,10 +240,10 @@ async function getEconomicSignals(): Promise<PredictionSignal[]> {
   // Group by indicator type
   const indicatorMap = new Map<string, { value: number }[]>();
   indicators.forEach(ind => {
-    if (!indicatorMap.has(ind.indicator)) {
-      indicatorMap.set(ind.indicator, []);
+    if (!indicatorMap.has(ind.seriesId)) {
+      indicatorMap.set(ind.seriesId, []);
     }
-    indicatorMap.get(ind.indicator)!.push(ind);
+    indicatorMap.get(ind.seriesId)!.push(ind);
   });
   
   // Analyze each indicator
